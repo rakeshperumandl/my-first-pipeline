@@ -1,17 +1,25 @@
-name: My First Pipeline
+name: Deploy site
 
 on:
   push:
     branches: [main]
 
-jobs:
-  build_job:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Building my app..."
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
-  deploy_job:
+jobs:
+  deploy:
     runs-on: ubuntu-latest
-    needs: build_job
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - run: echo "Deploying my app..."
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
